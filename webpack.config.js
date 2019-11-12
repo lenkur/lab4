@@ -34,6 +34,8 @@ module.exports = {
             filename: "css/[name].css",
         }),
     ],
+    watch: true,
+    watchOptions: {
+    ignored: /node_modules/
+  }
 };
-
-// ... contents of webpack.config.js
