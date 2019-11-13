@@ -1,4 +1,50 @@
-.cart_button {
-	font-size:30px;
-	color:red;
+$dark-color: #343a40;
+$secondary-color: #6c757d;
+$light-color: #f8f9fa;
+
+.sq {
+    font-size: 30px;
+    color: red;
+}
+
+.inblock {
+    display: inline-block;
+}
+
+.inline {
+    display: inline;
+}
+
+.light-text {
+    color: $light-color;
+
+    &:hover {
+        color: $dark-color;
+    }
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    text-decoration: none;
+
+}
+
+.dropdown-item:active {
+    background-color: $secondary-color;
+    padding-top: 100%;
+
+}
+
+.image-wrapper {
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+    background-size: contain, cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.old-price {
+	text-decoration-color: red;
+    text-decoration-line: line-through;
 }
