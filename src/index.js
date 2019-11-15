@@ -6,7 +6,7 @@ var cartFunctional = function() {
     //Cart
     var obj = {};
     //Add item
-    obj.addItem = function(name, price) {
+    obj.addItem = function(id, name, price) {
         var x;
         for (x of cart) {
             if (name == x.name && price == x.price) {
@@ -15,6 +15,7 @@ var cartFunctional = function() {
             }
         }
         x = {
+            id: id,
             name: name,
             price: price.toFixed(2),
             amount: 1
@@ -97,7 +98,6 @@ var cartFunctional = function() {
     };
 
     obj.cartContent = function() {
-    	console.log(cart);
         return cart;
     };
 
@@ -310,11 +310,12 @@ $(document).ready(function() {
             url: 'https://nit.tron.net.ua/api/product/' + id,
             type: 'GET',
             success: function(content) {
+                $('#product_info').attr('data-id', content.id);
                 $('.modal-body .product-name').text(content.name);
                 if (content.special_price == null) {
                     $('.modal-body .price').text(content.price);
                 } else {
-                    $('.modal-body .price').addClass('.old-price');
+                    $('.modal-body .price').addClass('old-price');
                     $('.modal-body .special-price').text(content.special_price);
                 }
                 $('.info_modal.image-wrapper').css("background-image", "url(" + content.image_url + ")");
@@ -332,11 +333,10 @@ $(document).ready(function() {
             url: 'https://nit.tron.net.ua/api/product/' + id,
             type: 'GET',
             success: function(content) {
-                console.log(content);
                 if (content.special_price == null) {
-                    cartFunctional.addItem(content.name, parseFloat(content.price));
+                    cartFunctional.addItem(content.id, content.name, parseFloat(content.price));
                 } else {
-                    cartFunctional.addItem(content.name, parseFloat(content.special_price));
+                    cartFunctional.addItem(content.id, content.name, parseFloat(content.special_price));
                 }
                 updateButtonCart($(".cart_button"));
             },
@@ -347,16 +347,15 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#buy_button", function() {
-        var id = $(this).parents('.card').data().id;
+        var id = $(this).parents('#product_info').attr('data-id');
         $.ajax({
             url: 'https://nit.tron.net.ua/api/product/' + id,
             type: 'GET',
             success: function(content) {
-                console.log(content);
                 if (content.special_price == null) {
-                    cartFunctional.addItem(content.name, parseFloat(content.price));
+                    cartFunctional.addItem(content.id, content.name, parseFloat(content.price));
                 } else {
-                    cartFunctional.addItem(content.name, parseFloat(content.special_price));
+                    cartFunctional.addItem(content.id, content.name, parseFloat(content.special_price));
                 }
                 updateButtonCart($(".cart_button"));
             },
@@ -367,28 +366,64 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#submit", function() {
+        console.log($(this));
+        var valid = false;
         var dataString = "token=kHPdQX3-vwtFW9o4fPXB";
         var name = $("input#name").val();
-        var email = $("input#email").val();
+        if (name == null || name == "") {
+            $("input#name").removeClass('is-valid');
+            $("input#name").addClass('is-invalid');
+            valid = false;
+        } else {
+            $("input#name").removeClass('is-invalid');
+            $("input#name").addClass('is-valid');
+            valid = true;
+
+        }
+        var email = $("input#e-mail").val();
+        var emailvalid = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (email == null || email == "" || !emailvalid.test(email)) {
+            $("input#e-mail").removeClass('is-valid');
+            $("input#e-mail").addClass('is-invalid');
+            valid = false;
+
+        } else {
+            $("input#e-mail").removeClass('is-invalid');
+            $("input#e-mail").addClass('is-valid');
+            valid = true;
+
+        }
         var phone = $("input#phone").val();
+        var phonevalid = /^\d{3}(-|\s)?\d{3}(-|\s)?\d{4}$/
+        if (phone == null || phone == "" || !phonevalid.test(phone)) {
+            $("input#phone").removeClass('is-valid');
+            $("input#phone").addClass('is-invalid');
+            valid = false;
+
+        } else {
+            $("input#phone").removeClass('is-invalid');
+            $("input#phone").addClass('is-valid');
+            valid = true;
+
+        }
         var products = "";
+        for (var i of cartFunctional.cartContent())
+            products += '&products[' + i.id + ']=' + i.amount;
+        if (valid) {
+            dataString += '&name=' + name + '&phone=' + phone + '&email=' + email + products;
+console.log(dataString);
+            $.ajax({
+                type: "POST",
+                url: 'https://nit.tron.net.ua/api/order/add',
+                data: dataString,
+                success: function(content) {
+console.log(content);
 
-        dataString += '&name=' + name + '&phone=' + phone + '&email=' + email + '&' + products;
-
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: ,
-        //     data: dataString,
-        //     success: function() {
-        //         $('#contact_form').html("<div id='message'></div>");
-        //         $('#message').html("<h2>Contact Form Submitted!</h2>")
-        //             .append("<p>We will be in touch soon.</p>")
-        //             .hide()
-        //             .fadeIn(1500, function() {
-        //                 $('#message').append("<img id='checkmark' src='images/check.png' />");
-        //             });
-        //     }
-        // });
+                },
+                error: function() {
+                    alert('Error while loading data!');
+                },
+            });
+        }
     });
 });
