@@ -101,6 +101,11 @@ var cartFunctional = function() {
         return cart;
     };
 
+    obj.clearCart = function() {
+        cart = [];
+    };
+
+
     return obj;
 }();
 
@@ -366,9 +371,8 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#submit", function() {
-        console.log($(this));
         var valid = false;
-        var dataString = "token=kHPdQX3-vwtFW9o4fPXB";
+        var dataString = "token=kHPdQX3vwtFW9o4fPXB";
         var name = $("input#name").val();
         if (name == null || name == "") {
             $("input#name").removeClass('is-valid');
@@ -411,18 +415,35 @@ $(document).ready(function() {
             products += '&products[' + i.id + ']=' + i.amount;
         if (valid) {
             dataString += '&name=' + name + '&phone=' + phone + '&email=' + email + products;
-console.log(dataString);
             $.ajax({
                 type: "POST",
                 url: 'https://nit.tron.net.ua/api/order/add',
                 data: dataString,
                 success: function(content) {
-console.log(content);
+                    if (content.status == 'success') {
+                        $('div.alert').removeClass('alert-danger');
+                        $('div.alert').addClass('alert-success');
+                        $('div.alert').text('Your request was sent successfully!');
+                        cartFunctional.clearCart();
+                        updateButtonCart($(".cart_button"));
+                        $('.table-cart').html('');
+                    } else if (content.status == 'error') {
+                        $('div.alert').removeClass('alert-success');
+                        $('div.alert').addClass('alert-danger');
+                        console.log(Object.keys(content.errors));
+                        console.log(content.errors.token);
+                        var s = "";
+                        for (var i of Object.values(content.errors)) 
+                            s += i + "\n";
+                        $('div.alert').text(s);
+                    }
+
 
                 },
                 error: function() {
                     alert('Error while loading data!');
                 },
+
             });
         }
     });
