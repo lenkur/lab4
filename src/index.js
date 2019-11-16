@@ -377,7 +377,7 @@ $(document).ready(function() {
 
     $(document).on("click", "#submit", function() {
         var valid = false;
-        var dataString = "token=-vwtFW9o4fPXB";
+        var dataString = "token=kHPdQX3-vwtFW9o4fPXB";
         var name = $("input#name").val();
         if (name == null || name == "") {
             $("input#name").removeClass('is-valid');
@@ -425,7 +425,6 @@ $(document).ready(function() {
                 url: 'https://nit.tron.net.ua/api/order/add',
                 data: dataString,
                 success: function(content) {
-                	console.log(content);
                     if (content.status == 'success') {
                         $('div.alert').removeClass('alert-danger');
                         $('div.alert').addClass('alert-success');
