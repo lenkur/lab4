@@ -122,6 +122,7 @@ $(document).ready(function() {
 
     //Distplay cart
     $(".cart_button").click(function() {
+        $('div.alert').hide();
         var s = "<thead class=\"thead-light\"><tr>" +
             "<th scope=\"col\">Name</th>" +
             "<th scope=\"col\">Price</th>" +
@@ -196,7 +197,7 @@ $(document).ready(function() {
                     '<div class="mt-auto">';
                 if (i.special_price == null) { s += '<div class="card-text mb-2 card-price">' + i.price + '$ </div>' } else {
                     s += '<div class="card-text mb-2 card-price"><span class="old-price">' + i.price + '$   </span>' +
-                        '<span class="special-price">' + i.special_price + '</span></div>'
+                        '<span class="special-price">' + i.special_price + '$</span></div>'
                 }
                 s +=
                     '<button type="button" class="btn btn-dark info_button" data-toggle="modal" data-target="#product_info"> Info </button>' +
@@ -245,7 +246,7 @@ $(document).ready(function() {
                         '<div class="mt-auto">';
                     if (i.special_price == null) { s += '<div class="card-text mb-2 card-price">' + i.price + '$ </div>' } else {
                         s += '<div class="card-text mb-2 card-price"><span class="old-price">' + i.price + '$   </span>' +
-                            '<span class="special-price">' + i.special_price + '</span></div>'
+                            '<span class="special-price">' + i.special_price + '$</span></div>'
                     }
                     s +=
                         '<button type="button" class="btn btn-dark info_button" data-toggle="modal" data-target="#product_info"> Info </button>' +
@@ -291,7 +292,7 @@ $(document).ready(function() {
                         '<div class="mt-auto">';
                     if (i.special_price == null) { s += '<div class="card-text mb-2 card-price">' + i.price + '$ </div>' } else {
                         s += '<div class="card-text mb-2 card-price"><span class="old-price">' + i.price + '$   </span>' +
-                            '<span class="special-price">' + i.special_price + '</span></div>'
+                            '<span class="special-price">' + i.special_price + '$</span></div>'
                     }
                     s +=
                         '<button type="button" class="btn btn-dark info_button" data-toggle="modal" data-target="#product_info"> Info </button>' +
@@ -318,10 +319,14 @@ $(document).ready(function() {
                 $('#product_info').attr('data-id', content.id);
                 $('.modal-body .product-name').text(content.name);
                 if (content.special_price == null) {
-                    $('.modal-body .price').text(content.price);
+                    $('.modal-body .price').text(content.price+'$');
+                    $('.modal-body .price').removeClass('old-price');
+                    $('.modal-body .special-price').text('');
+
                 } else {
                     $('.modal-body .price').addClass('old-price');
-                    $('.modal-body .special-price').text(content.special_price);
+                    $('.modal-body .price').text(content.price+'$');
+                    $('.modal-body .special-price').text(content.special_price+'$');
                 }
                 $('.info_modal.image-wrapper').css("background-image", "url(" + content.image_url + ")");
                 $('.modal-body .product-description').text(content.description);
@@ -372,7 +377,7 @@ $(document).ready(function() {
 
     $(document).on("click", "#submit", function() {
         var valid = false;
-        var dataString = "token=kHPdQX3vwtFW9o4fPXB";
+        var dataString = "token=-vwtFW9o4fPXB";
         var name = $("input#name").val();
         if (name == null || name == "") {
             $("input#name").removeClass('is-valid');
@@ -420,25 +425,24 @@ $(document).ready(function() {
                 url: 'https://nit.tron.net.ua/api/order/add',
                 data: dataString,
                 success: function(content) {
+                	console.log(content);
                     if (content.status == 'success') {
                         $('div.alert').removeClass('alert-danger');
                         $('div.alert').addClass('alert-success');
                         $('div.alert').text('Your request was sent successfully!');
                         cartFunctional.clearCart();
                         updateButtonCart($(".cart_button"));
+                        $('div.alert').show();
                         $('.table-cart').html('');
                     } else if (content.status == 'error') {
                         $('div.alert').removeClass('alert-success');
                         $('div.alert').addClass('alert-danger');
-                        console.log(Object.keys(content.errors));
-                        console.log(content.errors.token);
+                        $('div.alert').show();
                         var s = "";
-                        for (var i of Object.values(content.errors)) 
-                            s += i + "\n";
+                        for (var i of Object.values(content.errors))
+                            s += i + " ";
                         $('div.alert').text(s);
                     }
-
-
                 },
                 error: function() {
                     alert('Error while loading data!');
